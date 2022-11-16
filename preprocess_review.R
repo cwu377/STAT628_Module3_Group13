@@ -15,9 +15,14 @@ num_total <- 6990280
 num_each_division <- 100000
 num_partition <- num_total%/%num_each_division + 1
 
-for (x in 1:num_partition){
-  review <- jsonlite::stream_in(textConnection(read_lines(file_review, skip=(i-1)*num_partition, n_max=i*num_partition)), 
+data <- data.frame()
+
+for (i in 1:3){
+  from <- (i-1)*num_each_division
+  to <- i*num_each_division
+  review <- jsonlite::stream_in(textConnection(read_lines(file_review, skip=from, n_max=to)), 
                                 verbose=F)
   # do something here...
 }
 
+review <- jsonlite::stream_in(textConnection(read_lines(file_review, skip=0, n_max=num_each_division)), verbose=F)

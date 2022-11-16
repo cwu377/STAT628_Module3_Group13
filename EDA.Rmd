@@ -1,0 +1,69 @@
+---
+title: "R Notebook"
+output: html_notebook
+---
+
+
+```{r}
+library(tidyverse)
+```
+
+123
+```{r}
+sushi_review <- read_csv('sushi_review.csv')
+sushi <- read_csv('sushi.csv')
+
+sushi_review_select <- sushi_review %>% select(stars, text)
+```
+
+123
+```{r}
+sushi_type <- c('tuna', 'salmon', 'scallop', 'shrimp', 'halibut' ,'clam')
+
+
+#sushi_tuna <- sushi_review_select %>%
+#  filter(grepl('uni', text))
+
+#sushi_tuna %>% 
+#  ggplot(aes(stars)) +
+#  geom_bar()
+```
+123
+```{r}
+plots <- list()
+for (s in sushi_type){
+  sushi_filter <- sushi_review_select %>%
+    filter(grepl(paste('(?i)',s,sep=""), text))
+
+  plots[[s]] <- ggplot(sushi_filter, aes(stars)) +
+    geom_bar() +
+    labs(title = s)
+}
+
+grid.arrange(grobs=plots, ncol=3)
+```
+Why they all have the left tail?
+
+```{r}
+sushi_type_j <- c('katsuo|maguro|ahi', 'sake', 'hotate', 'ebi', 'engawa', 'hokkigai|akagai|tsubugai|mirugai')
+plots2 <- list()
+for (s in sushi_type_j){
+  sushi_filter <- sushi_review_select %>%
+    filter(grepl(paste('(?i)',s,sep=""), text))
+
+  plots2[[s]] <- ggplot(sushi_filter, aes(stars)) +
+    geom_bar() +
+    labs(title = s)
+}
+
+grid.arrange(grobs=plots2, ncol=3)
+```
+```{r}
+sushi_filter <- sushi_review_select %>%
+  filter(grepl(paste('(?i)','tuna',sep=""), text)) %>%
+  filter(grepl(paste('(?i)','salmon',sep=""), text))
+
+ggplot(sushi_filter, aes(stars)) +
+    geom_bar() +
+    labs(title = 'tuna&salmon')
+```
