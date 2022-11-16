@@ -6,6 +6,7 @@ output: html_notebook
 
 ```{r}
 library(tidyverse)
+library(gridExtra)
 ```
 
 123
@@ -16,20 +17,28 @@ sushi <- read_csv('sushi.csv')
 sushi_review_select <- sushi_review %>% select(stars, text)
 ```
 
-123
 ```{r}
-sushi_type <- c('tuna', 'salmon', 'scallop', 'shrimp', 'halibut' ,'clam')
+sushi_tuna <- sushi_review_select %>%
+  mutate(group = case_when(grepl("tuna", text) ~ "yes",
+                           !grepl("tuna", text) ~ "no")) #%>%
+```
 
+```{r}
+sushi_tuna2 <- sushi_tuna %>%
+  group_by(stars, group) %>%
+  summarize(n=n()) %>%
+  mutate(freq=n/sum(n))
+```
 
-#sushi_tuna <- sushi_review_select %>%
-#  filter(grepl('uni', text))
-
-#sushi_tuna %>% 
-#  ggplot(aes(stars)) +
-#  geom_bar()
+```{r}
+sushi_tuna2 %>%
+  filter(group == "yes") %>%
+  ggplot(aes(x=stars, y=freq)) +
+    geom_col()
 ```
 123
 ```{r}
+sushi_type <- c('tuna', 'salmon', 'scallop', 'shrimp', 'halibut' ,'clam')
 plots <- list()
 for (s in sushi_type){
   sushi_filter <- sushi_review_select %>%
@@ -66,4 +75,25 @@ sushi_filter <- sushi_review_select %>%
 ggplot(sushi_filter, aes(stars)) +
     geom_bar() +
     labs(title = 'tuna&salmon')
+```
+
+```{r}
+sushi_type <- c('tuna', 'salmon', 'scallop', 'shrimp', 'halibut' ,'clam')
+plots <- list()
+for (s in sushi_type){
+  sushi_filter <- sushi_review_select %>%
+    mutate(group = case_when(grepl(s, text) ~ "yes",
+                            !grepl(s, text) ~ "no")) %>%
+    group_by(stars, group) %>%
+    summarize(n=n()) %>%
+    mutate(freq=n/sum(n)) %>%
+    filter(group == "yes")
+      
+
+  plots[[s]] <- ggplot(data=sushi_filter, aes(x=stars, y=freq)) +
+    geom_col() +
+    labs(title = s)
+}
+
+grid.arrange(grobs=plots, ncol=3)
 ```
