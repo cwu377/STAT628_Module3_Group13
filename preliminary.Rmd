@@ -1,0 +1,118 @@
+---
+title: "Untitled"
+author: "Zixuan Zhao"
+date: "11/4/2022"
+output: html_document
+---
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = TRUE)
+```
+
+```{r}
+review<-read.csv("D:/Class/MSDS1/628/STAT628_Module3_Group13/data/sushi_review.csv")
+```
+
+```{r}
+library(tidyverse)
+library(gridExtra)
+library(dplyr)
+review_txt<-review[,c(5,9)]
+```
+
+```{r}
+positive <- c('good','excellent','nice','delicious')
+plots <- list()
+for (s in positive){
+  positive_filter <- review_txt %>%
+    mutate(group = case_when(grepl(s, text,ignore.case=T) ~ "yes",
+                            !grepl(s, text,ignore.case=T) ~ "no")) %>%
+    group_by(stars, group) %>%
+    summarize(n=n()) %>%
+    mutate(freq=n/sum(n)) %>%
+    filter(group == "yes")
+      
+  plots[[s]] <- ggplot(data=positive_filter, aes(x=stars, y=freq)) +
+    geom_col() +
+    labs(title = s)
+}
+grid.arrange(grobs=plots, ncol=2)
+```
+
+```{r}
+negative <- c('terrible','worst','dissatisf','disappoint')
+plots <- list()
+for (s in negative){
+  negative_filter <- review_txt %>%
+    mutate(group = case_when(grepl(s, text,ignore.case=T) ~ "yes",
+                            !grepl(s, text,ignore.case=T) ~ "no")) %>%
+    group_by(stars, group) %>%
+    summarize(n=n()) %>%
+    mutate(freq=n/sum(n)) %>%
+    filter(group == "yes")
+      
+  plots[[s]] <- ggplot(data=negative_filter, aes(x=stars, y=freq)) +
+    geom_col() +
+    labs(title = s)
+}
+grid.arrange(grobs=plots, ncol=2)
+```
+
+```{r}
+atm <- c('atmosphere','crowd','warm','cold','noisy','quiet')
+plots <- list()
+for (s in atm){
+  atm_filter <- review_txt %>%
+    mutate(group = case_when(grepl(s, text,ignore.case=T) ~ "yes",
+                            !grepl(s, text,ignore.case=T) ~ "no")) %>%
+    group_by(stars, group) %>%
+    summarize(n=n()) %>%
+    mutate(freq=n/sum(n)) %>%
+    filter(group == "yes")
+      
+  plots[[s]] <- ggplot(data=atm_filter, aes(x=stars, y=freq)) +
+    geom_col() +
+    labs(title = s)
+}
+grid.arrange(grobs=plots, ncol=3)
+```
+
+
+
+
+```{r}
+service <- c('service','attitude',"wait","speed")
+plots <- list()
+for (s in service){
+  service_filter <- review_txt %>%
+    mutate(group = case_when(grepl(s, text,ignore.case=T) ~ "yes",
+                            !grepl(s, text,ignore.case=T) ~ "no")) %>%
+    group_by(stars, group) %>%
+    summarize(n=n()) %>%
+    mutate(freq=n/sum(n)) %>%
+    filter(group == "yes")
+      
+  plots[[s]] <- ggplot(data=service_filter, aes(x=stars, y=freq)) +
+    geom_col() +
+    labs(title = s)
+}
+grid.arrange(grobs=plots, ncol=2)
+```
+
+```{r}
+price<-review_txt[grep("price",review_txt$text),]%>%group_by(stars)%>%summarise("Word Freq"=n()/N)
+barplot(price$`Word Freq`,xlab="price",ylab="Word Freq")
+
+family<-review_txt[grep("family",review_txt$text),]%>%group_by(stars)%>%summarise("Word Freq"=n()/N)
+barplot(family$`Word Freq`,xlab="family",ylab="Word Freq")
+
+expensive<-review_txt[grep("expensive",review_txt$text),]%>%group_by(stars)%>%summarise("Word Freq"=n()/N)
+barplot(expensive$`Word Freq`,xlab="expensive",ylab="Word Freq")
+
+cheap<-review_txt[grep("cheap",review_txt$text),]%>%group_by(stars)%>%summarise("Word Freq"=n()/N)
+barplot(cheap$`Word Freq`,xlab="cheap",ylab="Word Freq")
+
+affordable<-review_txt[grep("affordable",review_txt$text),]%>%group_by(stars)%>%summarise("Word Freq"=n()/N)
+barplot(affordable$`Word Freq`,xlab="affordable",ylab="Word Freq")
+```
+
