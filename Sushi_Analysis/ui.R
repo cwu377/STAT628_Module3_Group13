@@ -1,0 +1,39 @@
+
+
+data <- read_csv('sushi.csv', col_types = cols())
+
+
+# Define UI for application that draws a histogram
+ui <- fluidPage(
+    theme = shinytheme("cerulean"),
+    shinyFeedback::useShinyFeedback(),
+    # Application title
+    titlePanel("Sushi Restaurant"),
+    
+    sidebarLayout(
+        sidebarPanel(
+            uiOutput("selectstate"),
+            uiOutput("selectcity"),
+            uiOutput("selectname"),
+            actionButton("search", "Search", class="btn-primary"),
+        ),
+        
+        mainPanel(
+            dataTableOutput('data_2show')
+        ),
+    ),
+    hr(),
+    tags$div(
+        class = "footer",
+        HTML('Developed by: 
+             <br>  
+             <br> Chao-Sheng Wu: cwu377@wisc.edu
+             <br> ')
+    )
+)
+
+
+
+
+         
+         
