@@ -24,14 +24,24 @@ server <- function(input, output) {
                     restaurant_list)
     })
 
+    output$selectid<-renderUI({
+        input_restaurant <- input$restaurant
+        business_id_list <- data %>% filter(name %in% input_restaurant) %>%
+            select(business_id) %>% arrange(business_id) %>% 
+            distinct(business_id) %>% unlist()
+        names(business_id_list) <- NULL
+        selectInput("business_id","Choose a ID:",
+                    business_id_list)
+    })
+    
     output$data_2show <- renderDataTable(
         get_data()
     )
     
     
     get_data <- eventReactive(input$search, {
-        input_restaurant <- input$restaurant
-        d <- data %>% filter(name %in% input_restaurant)
+        input_business_id <- input$business_id
+        d <- data %>% filter(business_id %in% input_business_id)
         return (d)
     })
     
@@ -43,6 +53,12 @@ server <- function(input, output) {
             addTiles() %>%
             #addMarkers(data = df, lat = ~stop_lat, lng = ~stop_lon, layerId = ~stop_id)
             addMarkers(data = point, lng = ~longitude, lat = ~latitude)
+    })
+    
+    output$restaurant_name <- renderUI({
+        t <- get_data() %>%
+            select(name) %>% distinct(name) %>% unlist()
+        h1(t)
     })
     # output$txt <- renderText({ 
     #     r <- get_bodyfatper()

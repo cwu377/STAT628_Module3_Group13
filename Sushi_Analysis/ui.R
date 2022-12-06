@@ -15,10 +15,12 @@ ui <- fluidPage(
             uiOutput("selectstate"),
             uiOutput("selectcity"),
             uiOutput("selectname"),
+            uiOutput("selectid"),
             actionButton("search", "Search", class="btn-primary"),
         ),
         
         mainPanel(
+            uiOutput("restaurant_name"),
             leafletOutput("mymap"),
             dataTableOutput('data_2show')
         ),
