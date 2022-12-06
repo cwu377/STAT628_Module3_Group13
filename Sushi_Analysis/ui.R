@@ -19,6 +19,7 @@ ui <- fluidPage(
         ),
         
         mainPanel(
+            leafletOutput("mymap"),
             dataTableOutput('data_2show')
         ),
     ),

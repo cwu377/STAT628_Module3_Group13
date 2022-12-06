@@ -1,3 +1,5 @@
+
+
 server <- function(input, output) {
     output$selectstate<-renderUI({
         state_list <- data %>% select(state) %>% arrange(state) %>% distinct(state) 
@@ -25,10 +27,22 @@ server <- function(input, output) {
     output$data_2show <- renderDataTable(
         get_data()
     )
+    
+    
     get_data <- eventReactive(input$search, {
         input_restaurant <- input$restaurant
         d <- data %>% filter(name %in% input_restaurant)
         return (d)
+    })
+    
+    
+    output$mymap <- renderLeaflet({
+        point <- get_data() %>%
+            select(longitude, latitude)
+        leaflet() %>%
+            addTiles() %>%
+            #addMarkers(data = df, lat = ~stop_lat, lng = ~stop_lon, layerId = ~stop_id)
+            addMarkers(data = point, lng = ~longitude, lat = ~latitude)
     })
     # output$txt <- renderText({ 
     #     r <- get_bodyfatper()
