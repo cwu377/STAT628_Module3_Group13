@@ -1,4 +1,7 @@
 ui <- fluidPage(
+    tags$head(
+        tags$link(rel = "stylesheet", type="text/css", href="div.css")
+    ),
     theme = shinytheme("cerulean"),
     shinyFeedback::useShinyFeedback(),
     # Application title
@@ -18,6 +21,14 @@ ui <- fluidPage(
                 tabPanel('Information',
                     uiOutput("restaurant_name"),
                     uiOutput("address"),
+                    tags$div(
+                        style="display:flex",
+                        class="block_container",
+                        uiOutput("wifi", class="bloc1"),
+                        uiOutput("wheelchair", class="bloc2"),
+                        uiOutput("alcohol"),
+                        uiOutput("noise", class="bloc1")
+                    ),
                     leafletOutput("mymap"),
                     dataTableOutput('data_2show')
                 ),

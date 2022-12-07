@@ -33,7 +33,7 @@ server <- function(input, output) {
     })
     
     output$data_2show <- renderDataTable(
-        get_data()
+        get_data() %>% select(1:10)
     )
     
     
@@ -71,11 +71,122 @@ server <- function(input, output) {
         p(paste(t[1], t[2], t[3], sep=", "), class="text-warning")
     })
     
+    output$wifi <- renderUI({
+        r <- 0
+        t <- get_data() %>% select(WiFi) %>% unlist()
+        if (grepl("free", t)){
+            r <- 1    
+        }
+        
+        if (r==1){
+            tags$div(
+                style="display:flex",
+                class="block_container",
+                h6("WiFi:", class="bloc1"),
+                tags$img(src = "check.png", height="10%", width="10%", class="bloc2")
+            )
+        }else if(r==0){
+            tags$div(
+                style="display:flex",
+                class="block_container",
+                h6("WiFi:", class="bloc1"),
+                tags$img(src = "cross.png", height="10%", width="10%", class="bloc2")
+            )
+        }
+        
+    })
+    
+    output$wheelchair <- renderUI({
+        r <- 0
+        t <- get_data() %>% select(WheelchairAccessible) %>% unlist()
+        if (isTRUE(t)){
+            r <- 1    
+        }
+        
+        if (r==1){
+            tags$div(
+                style="display:flex",
+                class="block_container",
+                h6("Wheelchair:", class="bloc1"),
+                tags$img(src = "check.png", height="10%", width="10%", class="bloc2")
+            )
+        }else if(r==0){
+            tags$div(
+                style="display:flex",
+                class="block_container",
+                h6("Wheelchair:", class="bloc1"),
+                tags$img(src = "cross.png", height="10%", width="10%", class="bloc2")
+            )
+        }
+        
+    })
+    
+    output$noise <- renderUI({
+        r <- 0
+        t <- get_data() %>% select(NoiseLevel) %>% unlist()
+        if (grepl("quite", t)){
+            r <- 1    
+        }else if(grepl("average", t)){
+            r <- 2
+        }else if(grepl("very_loud", t)){
+            r <- 3
+        }else if(grepl("very_loud", t)){
+            r <- 4
+        }
+        
+        if (r==0){
+            tags$div(
+                style="display:flex",
+                class="block_container",
+                h6("Noisy Level:", class="bloc1"),
+                tags$img(src = "cross.png", height="10%", width="10%", class="bloc2")
+            )
+        }else{
+            tags$div(
+                style="display:flex",
+                class="block_container",
+                tags$div(
+                    h6("Noisy_Level: "),
+                    class="bloc1"
+                    ),
+                tags$div(
+                    h3(r,style="color:red"),
+                    class="bloc2"
+                )
+            )
+        }
+        
+    })
+    
+    output$alcohol <- renderUI({
+        r <- 0
+        t <- get_data() %>% select(Alcohol) %>% unlist()
+        if (grepl("bar|bear|wine", t)){
+            r <- 1    
+        }
+        
+        if (r==1){
+            tags$div(
+                style="display:flex",
+                class="block_container",
+                h6("Alcohol:", class="bloc1"),
+                tags$img(src = "check.png", height="10%", width="10%", class="bloc2")
+            )
+        }else if(r==0){
+            tags$div(
+                style="display:flex",
+                class="block_container",
+                h6("Alcohol:", class="bloc1"),
+                tags$img(src = "cross.png", height="10%", width="10%", class="bloc2")
+            )
+        }
+        
+    })
     
     output$rating_vs_year <- renderPlot({
         review2 <- get_review() %>%
             group_by(year = lubridate::year(date)) %>%
-            summarise(avg = mean(stars), count=n())
+            summarise(avg = mean(stars), count=n()) 
         ggplot(data=review2)+
             geom_line(aes(x=year,y=avg)) +
             ylab("Average Star") +
