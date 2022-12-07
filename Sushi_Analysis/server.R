@@ -1,5 +1,3 @@
-
-
 server <- function(input, output) {
     output$selectstate<-renderUI({
         state_list <- data %>% select(state) %>% arrange(state) %>% distinct(state) 
@@ -44,7 +42,12 @@ server <- function(input, output) {
         d <- data %>% filter(business_id %in% input_business_id)
         return (d)
     })
-    
+
+    get_review <- eventReactive(input$search, {
+        input_business_id <- input$business_id
+        d <- review %>% filter(business_id %in% input_business_id)
+        return (d)
+    })
     
     output$mymap <- renderLeaflet({
         point <- get_data() %>%
@@ -60,11 +63,34 @@ server <- function(input, output) {
             select(name) %>% distinct(name) %>% unlist()
         h1(t)
     })
-    # output$txt <- renderText({ 
-    #     r <- get_bodyfatper()
-    #     paste("Body Fat: ", r, "%", sep="")
-    #})
+    
+    output$address <- renderUI({
+        t <- get_data() %>%
+            select(address, city, state) %>% unlist()
 
+        p(paste(t[1], t[2], t[3], sep=", "), class="text-warning")
+    })
+    
+    
+    output$rating_vs_year <- renderPlot({
+        review2 <- get_review() %>%
+            group_by(year = lubridate::year(date)) %>%
+            summarise(avg = mean(stars), count=n())
+        ggplot(data=review2)+
+            geom_line(aes(x=year,y=avg)) +
+            ylab("Average Star") +
+            theme(axis.text.x = element_text(angle = 45, hjust = 0.5, vjust = 0.5))
+    })
+    
+    output$count_vs_year <- renderPlot({
+        review2 <- get_review() %>%
+            group_by(year = lubridate::year(date)) %>%
+            summarise(avg = mean(stars), count=n())
+        ggplot(data=review2)+
+            geom_col(aes(x=year, y=count))+
+            ylab("Review Number")
+    })
+    
 }
 
 

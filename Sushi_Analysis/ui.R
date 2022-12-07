@@ -1,9 +1,3 @@
-
-
-data <- read_csv('sushi.csv', col_types = cols())
-
-
-# Define UI for application that draws a histogram
 ui <- fluidPage(
     theme = shinytheme("cerulean"),
     shinyFeedback::useShinyFeedback(),
@@ -20,9 +14,18 @@ ui <- fluidPage(
         ),
         
         mainPanel(
-            uiOutput("restaurant_name"),
-            leafletOutput("mymap"),
-            dataTableOutput('data_2show')
+            tabsetPanel(
+                tabPanel('Information',
+                    uiOutput("restaurant_name"),
+                    uiOutput("address"),
+                    leafletOutput("mymap"),
+                    dataTableOutput('data_2show')
+                ),
+                tabPanel('Charts',
+                    plotOutput('rating_vs_year'),
+                    plotOutput('count_vs_year')
+                )
+            ),
         ),
     ),
     hr(),
@@ -34,6 +37,7 @@ ui <- fluidPage(
              <br> ')
     )
 )
+
 
 
 
