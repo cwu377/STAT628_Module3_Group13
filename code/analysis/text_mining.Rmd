@@ -1,0 +1,177 @@
+---
+title: "text_analysis"
+author: "Zixuan Zhao"
+date: "11/26/2022"
+output: html_document
+---
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = TRUE)
+```
+
+```{r}
+library(tm)
+library(tidytext)
+library(tidyverse)
+library(stringr)
+library(dplyr)
+library(ggplot2)
+```
+
+```{r}
+review<-read.csv("D:/Class/MSDS1/628/STAT628_Module3_Group13/data/sushi_review.csv")
+review<-review%>%
+  group_by(business_id)%>%
+  mutate(star_sd=scale(stars))
+review$year<-substr(review$date,1,4)
+head(review)
+```
+```{r}
+busi<-read.csv("D:/Class/MSDS1/628/STAT628_Module3_Group13/data/sushi.csv")
+busi_name<-busi[,2:3]
+review_new<-merge(review,busi_name,by="business_id")
+review<-review_new[,-2]
+```
+
+
+```{r}
+#How average rating of xx restaurant change over year
+time<-review%>%
+  group_by(name,year)%>%
+  summarise(avg=mean(stars))
+rating_change<-function(busi.name){
+  ggplot(time[time$name==busi.name,])+
+  geom_line(aes(x=year,y=avg))+
+  ylab("Average star")+
+  theme(axis.text.x = element_text(angle = 45, hjust = 0.5, vjust = 0.5))
+}
+rating_change("@Ramen")
+```
+
+
+```{r}
+clean<-function(text){
+  text<-tolower(text) 
+  text<-removeNumbers(text) #remove numbers
+  text<-removeWords(text,stop_words$word) #remove stopword
+  text<-removePunctuation(text) 
+  text<-stripWhitespace(text) #去掉多余的空格
+}
+text<-clean(review$text)
+```
+
+```{r}
+text_df <- tibble(line = 1:length(text), text = text)
+tidy_text <- text_df%>%
+  unnest_tokens(word, text)
+tidy_text$word[which(tidy_text$word=="rolls")]<-"roll"
+word_freq<-tidy_text %>%
+  count(word, sort = TRUE)
+head(word_freq)
+```
+```{r}
+word_freq<-word_freq[-c(1,2,6,10,13),]
+View(word_freq)
+```
+
+```{r,fig.height=2}
+library(ggplot2)
+library(ggthemes)
+options(scipen = 999)
+levels=unique(as.character(word_freq$word))
+word_freq$word<-factor(word_freq$word,levels=levels,ordered=T)
+ggplot(word_freq[1:20,],aes(x=word,y=n))+
+  geom_bar(stat="identity",fill='darkred')+
+  coord_flip()+ 
+  theme_gdocs()+
+  ylab("Frequency")+
+  labs(title="Word Frequency")+
+  theme(plot.title=element_text(face="bold.italic", 
+                                color="black", 
+                                size=10,  
+                                hjust=0.5)) 
+```
+```{r}
+#positive (rating_sd>=0)
+posi<-which(review$star_sd>=0)
+nega<-which(review$star_sd<0)
+
+text_posi<-text[posi]
+text_nega<-text[nega]
+
+library(wordcloud2)
+```
+
+```{r}
+text_df_p <- tibble(line = 1:length(text_posi), text = text_posi)
+tidy_text_p <- text_df_p%>%
+  unnest_tokens(word, text)
+tidy_text_p$word[which(tidy_text_p$word=="rolls")]<-"roll"
+word_freq_p<-tidy_text_p %>%
+  count(word, sort = TRUE)
+#(word_freq_p)
+word_freq_p<-word_freq_p[-c(1:31),]
+wordcloud2(word_freq_p,size=0.5,
+           fontFamily="Times New Roman",
+           color="random-light")　
+```
+
+```{r}
+text_df_n <- tibble(line = 1:length(text_nega), text = text_nega)
+tidy_text_n <- text_df_n%>%
+  unnest_tokens(word, text)
+tidy_text_n$word[which(tidy_text_n$word=="rolls")]<-"roll"
+tidy_text_n$word[which(tidy_text_n$word=="dishes")]<-"dish"
+word_freq_n<-tidy_text_n %>%
+  count(word, sort = TRUE)
+(word_freq_n)
+word_freq_n<-word_freq_n[-c(1:31),]
+wordcloud2(word_freq_p,size=0.5,
+           fontFamily="Times New Roman",
+           color="random-light")　
+```
+
+
+```{r,fig.width=1.4}
+
+ggplot(associations,aes(y=terms))+
+  geom_point(aes(x=service),data=associations,size=2)+
+  geom_text(aes(x=service,label=service),
+            colour="darkred",hjust=-0.25,size=2.5)+
+  xlim(c(0.12,0.22))+
+  labs(title="Word Association")+
+  theme(plot.title=element_text(face="bold.italic", 
+                                color="black", 
+                                size=8,  
+                                hjust=0.5))+ 
+  theme(text=element_text(size=7),
+       axis.title.y=element_blank())
+```
+
+```{r}
+#A example: Ocean World  
+review1<-review[review$name=="Ocean World",]
+head(review1)
+```
+
+```{r}
+text1<-clean(review1$text)
+text_df1 <- tibble(line = 1:length(text1), text = text1)
+tidy_text1 <- text_df1%>%
+  unnest_tokens(word, text)
+tidy_text1$word[which(tidy_text1$word=="rolls")]<-"roll"
+word_freq1<-tidy_text1 %>%
+  count(word, sort = TRUE)
+head(word_freq1)
+
+
+levels=unique(as.character(word_freq1$word))
+word_freq1$word<-factor(word_freq1$word,levels=levels,ordered=T)
+ggplot(word_freq1[1:20,],aes(x=word,y=n))+
+  geom_bar(stat="identity",fill='darkred')+
+  coord_flip()+ 
+  theme_gdocs()+
+  xlab("Frequency")
+```
+
+
