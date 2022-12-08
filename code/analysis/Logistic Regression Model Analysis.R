@@ -27,7 +27,7 @@ sushi_park$alco=str_detect(sushi_park$Alcohol,'r')
 
 sp_model=glm(goodrating~OutdoorSeating+RestaurantsDelivery+WheelchairAccessible+
               BikeParking+is_loud+freewifi+casual+alco,
-            data=sushi_park)
+            data=sushi_park, family = "binomial")
 summary(sp_model)
 
 ggplot(data=sushi_park,aes(x=stars,y=..density..,fill=alco))+
