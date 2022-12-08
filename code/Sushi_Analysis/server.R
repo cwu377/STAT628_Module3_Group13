@@ -1,17 +1,17 @@
 server <- function(input, output) {
-    output$selectstate<-renderUI({
+    output$selectstate <- renderUI({
         state_list <- data %>% select(state) %>% arrange(state) %>% distinct(state) 
         selectInput("state","Choose a State:",
                     state_list)
     })
-    output$selectcity<-renderUI({
+    output$selectcity <- renderUI({
         input_state <- input$state
         city_list <- data %>% filter(state %in% input_state) %>% 
             select(city) %>% arrange(city) %>% distinct(city) 
         selectInput("city","Choose a City:",
                     city_list)
     })
-    output$selectname<-renderUI({
+    output$selectname <- renderUI({
         input_state <- input$state
         input_city <- input$city
         restaurant_list <- data %>% filter(state %in% input_state) %>%
@@ -22,7 +22,7 @@ server <- function(input, output) {
                     restaurant_list)
     })
 
-    output$selectid<-renderUI({
+    output$selectid <- renderUI({
         input_restaurant <- input$restaurant
         business_id_list <- data %>% filter(name %in% input_restaurant) %>%
             select(business_id) %>% arrange(business_id) %>% 
@@ -32,14 +32,27 @@ server <- function(input, output) {
                     business_id_list)
     })
     
+    output$competitor_header <- renderUI({
+        if(!is.na(get_data_city())){
+            h3("Competitors in the same city", style="color:red")
+        }
+    })
+    
     output$data_2show <- renderDataTable(
-        get_data() %>% select(1:10)
+        get_data_city()
     )
     
     
     get_data <- eventReactive(input$search, {
         input_business_id <- input$business_id
         d <- data %>% filter(business_id %in% input_business_id)
+        return (d)
+    })
+    
+    get_data_city <- eventReactive(input$search, {
+        input_city <- input$city
+        d <- data %>% filter(city %in% input_city) %>%
+            select(name, address, state, city, stars, review_count, business_id)
         return (d)
     })
 
@@ -54,7 +67,6 @@ server <- function(input, output) {
             select(longitude, latitude)
         leaflet() %>%
             addTiles() %>%
-            #addMarkers(data = df, lat = ~stop_lat, lng = ~stop_lon, layerId = ~stop_id)
             addMarkers(data = point, lng = ~longitude, lat = ~latitude)
     })
     
@@ -190,6 +202,7 @@ server <- function(input, output) {
         ggplot(data=review2)+
             geom_line(aes(x=year,y=avg)) +
             ylab("Average Star") +
+            scale_x_continuous(breaks = int_breaks) +
             theme(axis.text.x = element_text(angle = 45, hjust = 0.5, vjust = 0.5))
     })
     
@@ -199,7 +212,51 @@ server <- function(input, output) {
             summarise(avg = mean(stars), count=n())
         ggplot(data=review2)+
             geom_col(aes(x=year, y=count))+
+            scale_x_continuous(breaks = int_breaks) +
             ylab("Review Number")
+    })
+    
+    output$WC_pos <- renderWordcloud2({
+        review_one <- get_review() %>%
+            mutate(star_sd=scale(stars))
+        text<-clean(review_one$text)
+        posi<-which(review_one$star_sd>=0)
+        text_posi<-text[posi]
+        text_df_p <- tibble(line = 1:length(text_posi), text = text_posi)
+        tidy_text_p <- text_df_p%>%
+            unnest_tokens(word, text)
+        tidy_text_p$word[which(tidy_text_p$word=="rolls")]<-"roll"
+        word_freq_p<-tidy_text_p %>%
+            count(word, sort = TRUE)
+        word_freq_p<-word_freq_p[-c(1:31),]
+        return(
+        wordcloud2(word_freq_p,size=0.5,
+                   fontFamily="Times New Roman",
+                   color="random-light")
+        )
+        
+    })
+    
+    output$WC_neg <- renderWordcloud2({
+        review_one <- get_review() %>%
+            mutate(star_sd=scale(stars))
+        text<-clean(review_one$text)
+        nega<-which(review_one$star_sd<0)
+        text_nega<-text[nega]
+        text_df_n <- tibble(line = 1:length(text_nega), text = text_nega)
+        tidy_text_n <- text_df_n%>%
+            unnest_tokens(word, text)
+        tidy_text_n$word[which(tidy_text_n$word=="rolls")]<-"roll"
+        tidy_text_n$word[which(tidy_text_n$word=="dishes")]<-"dish"
+        word_freq_n<-tidy_text_n %>%
+            count(word, sort = TRUE)
+        word_freq_n<-word_freq_n[-c(1:31),]
+        return(
+        wordcloud2(word_freq_n,size=0.5,
+                   fontFamily="Times New Roman",
+                   color="random-light")
+        )
+
     })
     
 }

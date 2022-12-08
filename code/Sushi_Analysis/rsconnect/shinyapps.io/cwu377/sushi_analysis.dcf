@@ -5,7 +5,7 @@ account: cwu377
 server: shinyapps.io
 hostUrl: https://api.shinyapps.io/v1
 appId: 7833315
-bundleId: 6606469
+bundleId: 6608995
 url: https://cwu377.shinyapps.io/sushi_analysis/
-when: 1670441104.35095
-lastSyncTime: 1670441104.35096
+when: 1670479560.26948
+lastSyncTime: 1670479560.26951
