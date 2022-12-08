@@ -1,8 +1,9 @@
 # Yelp Sushi Data Analysis
 
 ## Description
-Our report is ***Executive Summary.pdf***    
-You could play around with our model: [Yelp Sushi Analysis](https://cwu377.shinyapps.io/sushi_analysis/)
+This project aims to provide a few suggestions to our stakeholders so that they can take specific actions to improve their business.    
+Our analysis report is ***Executive Summary.pdf***    
+Also, You could play around with our app: [Yelp Sushi Analysis](https://cwu377.shinyapps.io/sushi_analysis/)
 
 ## Repo Structure
 
@@ -25,13 +26,14 @@ You could play around with our model: [Yelp Sushi Analysis](https://cwu377.shiny
   - dataprocessing: 
     - Preliminary Attribute Analysis.ipynb: 
     - filter_sushi_data.ipynb: Read original business.json/review.json, filtered by categories and ouputed to sushi.csv/sushi_review.csv 
+  - preliminary: files related to our preliminary report
 - images  
   - logistic analysis
-  - preliminary
+  - preliminary: images related to our preliminary report
   - Word Freq.png
   - word assoc.png
 
-- Two-page Summary
+- Executive Summary
 - README: You are reading me now
 
 
